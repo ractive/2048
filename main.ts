@@ -1,3 +1,13 @@
+class Tile {
+    public n: number;
+    public sprite: Sprite;
+
+    constructor(n: number, sprite: Sprite) {
+        this.n = n;
+        this.sprite = sprite;
+    }
+}
+
 function randomNumber() {
     return Math.percentChance(10) ? 4 : 2;
 }
@@ -25,7 +35,7 @@ function createTile(row: number, column: number, n: number) {
         pause(15);
     }
     s.setImage(createImage(n));
-    numberTiles[row][column] = s;
+    numberTiles[row][column] = new Tile(n, s);
 }
 
 function createRandomTile() {
@@ -60,10 +70,10 @@ function move(direction: Direction) {
     for (let column = 0; column < 4; column++) {
         for (let row = 0; row < 4; row++) {
             if (!numberTiles[row][column]) continue;
-            const sprite = numberTiles[row][column];
+            const tile = numberTiles[row][column];
             const expectedY = offsetY + row * (width - 1) + 14;
-            if (sprite.y != expectedY) {
-                sprite.setPosition(sprite.x, expectedY)
+            if (tile.sprite.y != expectedY) {
+                tile.sprite.setPosition(tile.sprite.x, expectedY)
             }
         }
     }
@@ -76,7 +86,7 @@ scene.setBackgroundColor(13)
 const width = 28
 const offsetX = 26;
 const offsetY = 5;
-const numberTiles: Sprite[][] = [
+const numberTiles: Tile[][] = [
     [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
