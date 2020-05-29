@@ -54,6 +54,19 @@ function createRandomTile() {
     createTile(row, column, randomNumber());
 }
 
+function combineTiles(tileA: Tile, tileB: Tile, row: number, column: number): boolean {
+    if (tileA && tileB && (tileA.n === tileB.n)) {
+        // Combine them
+        tileB.sprite.setImage(createImage(tileB.n * 2));
+        tileB.n *= 2;
+        tileA.sprite.destroy();
+        numberTiles[row][column] = null;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function move(direction: Direction, combine: boolean): boolean {
     let changed = false;
 
@@ -79,14 +92,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (row - 1 >= 0) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row - 1][column];
-                        if (tileA && tileB && (tileA.n === tileB.n)) {
-                            // Combine them
-                            tileB.sprite.setImage(createImage(tileB.n * 2));
-                            tileB.n *= 2;
-                            tileA.sprite.destroy();
-                            numberTiles[row][column] = null;
-                            changed = true;
-                        }
+                        changed = combineTiles(tileA, tileB, row, column);
                     }
                 }
             }
@@ -116,14 +122,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (row + 1 < 4) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row + 1][column];
-                        if (tileA && tileB && (tileA.n === tileB.n)) {
-                            // Combine them
-                            tileB.sprite.setImage(createImage(tileB.n * 2));
-                            tileB.n *= 2;
-                            tileA.sprite.destroy();
-                            numberTiles[row][column] = null;
-                            changed = true;
-                        }
+                        changed = combineTiles(tileA, tileB, row, column);
                     }
                 }
             }
@@ -152,14 +151,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (column - 1 >= 0) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row][column - 1];
-                        if (tileA && tileB && (tileA.n === tileB.n)) {
-                            // Combine them
-                            tileB.sprite.setImage(createImage(tileB.n * 2));
-                            tileB.n *= 2;
-                            tileA.sprite.destroy();
-                            numberTiles[row][column] = null;
-                            changed = true;
-                        }
+                        changed = combineTiles(tileA, tileB, row, column);
                     }
                 }
             }
@@ -188,14 +180,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (column + 1 < 4) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row][column + 1];
-                        if (tileA && tileB && (tileA.n === tileB.n)) {
-                            // Combine them
-                            tileB.sprite.setImage(createImage(tileB.n * 2));
-                            tileB.n *= 2;
-                            tileA.sprite.destroy();
-                            numberTiles[row][column] = null;
-                            changed = true;
-                        }
+                        changed = combineTiles(tileA, tileB, row, column);
                     }
                 }
             }
