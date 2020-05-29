@@ -60,7 +60,49 @@ function move(direction: Direction) {
                         numberTiles[row][column] = null;
                     }
                 } else {
-                    holes++;
+                    ++holes;
+                }
+            }
+        }
+    } else if (direction === Direction.DOWN) {
+        for (let column = 0; column < 4; column++) {
+            let holes = 0;
+            for (let row = 3; row >= 0; row--) {
+                if (numberTiles[row][column]) {
+                    if (holes) {
+                        numberTiles[row + holes][column] = numberTiles[row][column];
+                        numberTiles[row][column] = null;
+                    }
+                } else {
+                    ++holes;
+                }
+            }
+        }
+    } else if (direction === Direction.LEFT) {
+        for (let row = 0; row < 4; row++) {
+            let holes = 0;
+            for (let column = 0; column < 4; column++) {
+                if (numberTiles[row][column]) {
+                    if (holes) {
+                        numberTiles[row][column - holes] = numberTiles[row][column];
+                        numberTiles[row][column] = null;
+                    }
+                } else {
+                    ++holes;
+                }
+            }
+        }
+    } else if (direction === Direction.RIGHT) {
+        for (let row = 0; row < 4; row++) {
+            let holes = 0;
+            for (let column = 3; column >= 0; column--) {
+                if (numberTiles[row][column]) {
+                    if (holes) {
+                        numberTiles[row][column + holes] = numberTiles[row][column];
+                        numberTiles[row][column] = null;
+                    }
+                } else {
+                    ++holes;
                 }
             }
         }
@@ -72,8 +114,9 @@ function move(direction: Direction) {
             if (!numberTiles[row][column]) continue;
             const tile = numberTiles[row][column];
             const expectedY = offsetY + row * (width - 1) + 14;
-            if (tile.sprite.y != expectedY) {
-                tile.sprite.setPosition(tile.sprite.x, expectedY)
+            const expectedX = offsetX + column * (width - 1) + 14;
+            if (tile.sprite.x != expectedX || tile.sprite.y != expectedY) {
+                tile.sprite.setPosition(expectedX, expectedY)
             }
         }
     }
