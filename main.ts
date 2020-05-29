@@ -224,9 +224,24 @@ function move(direction: Direction, combine: boolean): boolean {
     return changed;
 }
 
+function isFull() {
+    for (let column = 0; column < 4; column++) {
+        for (let row = 0; row < 4; row++) {
+            if (!numberTiles[row][column]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 function doMove(direction: Direction) {
-    if (move(direction, true)) {
+    const couldMove = move(direction, true);
+    if (couldMove) {
         createRandomTile();
+    } else if (isFull()) {
+        game.over(false);
     }
 }
 
