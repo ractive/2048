@@ -19,8 +19,8 @@ namespace NumberTiles {
     }
 
     export function move(fromRow: number, fromColumn: number, toRow: number, toColumn: number): boolean {
-            const changed = NumberTiles.set(toRow, toColumn, NumberTiles.get(fromRow, fromColumn));
-            NumberTiles.remove(fromRow, fromColumn);
+            const changed = set(toRow, toColumn, get(fromRow, fromColumn));
+            remove(fromRow, fromColumn);
             return changed;
     }
 
@@ -42,30 +42,32 @@ namespace NumberTiles {
 
         createTile(row, column, Math.percentChance(10) ? 4 : 2);
     }
-}
 
-function combineTiles(rowA: number, columnA: number, rowB: number, columnB: number): boolean {
-    const tileA = NumberTiles.get(rowA, columnA);
-    const tileB = NumberTiles.get(rowB, columnB);
-    if (tileA && tileB && (tileA.n === tileB.n)) {
-        // Combine them
-        tileB.n *= 2;
-        tileA.destroy();
-        NumberTiles.remove(rowA, columnA);
-        return true;
-    } else {
-        return false;
+    export function combine(rowA: number, columnA: number, rowB: number, columnB: number): boolean {
+        const tileA = get(rowA, columnA);
+        const tileB = get(rowB, columnB);
+        if (tileA && tileB && (tileA.n === tileB.n)) {
+            // Combine them
+            tileB.n *= 2;
+            tileA.destroy();
+            remove(rowA, columnA);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
+
+
 
 function move(direction: Direction, combine: boolean): boolean {
     let changed = false;
 
     if (direction === Direction.UP) {
         // Move the tiles up
-        for (let column = 0; column < 4; column++) {
+        for (let column = 0; column < 4; ++column) {
             let holes = 0;
-            for (let row = 0; row < 4; row++) {
+            for (let row = 0; row < 4; ++row) {
                 if (NumberTiles.get(row, column)) {
                     if (holes) {
                         changed = NumberTiles.move(row, column, row - holes, column) || changed;
@@ -77,10 +79,10 @@ function move(direction: Direction, combine: boolean): boolean {
         }
         if (combine) {
             // Combine tiles with the same value
-            for (let column = 0; column < 4; column++) {
-                for (let row = 3; row >= 0; row--) {
+            for (let column = 0; column < 4; ++column) {
+                for (let row = 3; row >= 0; --row) {
                     if (row - 1 >= 0) {
-                        if (combineTiles(row, column, row - 1, column)) {
+                        if (NumberTiles.combine(row, column, row - 1, column)) {
                             --row; // Don't combine the just combined tile with the next one
                             changed = true;
                         }
@@ -93,9 +95,9 @@ function move(direction: Direction, combine: boolean): boolean {
         }
 
     } else if (direction === Direction.DOWN) {
-        for (let column = 0; column < 4; column++) {
+        for (let column = 0; column < 4; ++column) {
             let holes = 0;
-            for (let row = 3; row >= 0; row--) {
+            for (let row = 3; row >= 0; --row) {
                 if (NumberTiles.get(row, column)) {
                     if (holes) {
                         changed = NumberTiles.move(row, column, row + holes, column) || changed ;
@@ -107,10 +109,10 @@ function move(direction: Direction, combine: boolean): boolean {
         }
         if (combine) {
             // Combine tiles with the same value
-            for (let column = 0; column < 4; column++) {
-                for (let row = 0; row < 4; row++) {
+            for (let column = 0; column < 4; ++column) {
+                for (let row = 0; row < 4; ++row) {
                     if (row + 1 < 4) {
-                        if (combineTiles(row, column, row + 1, column)) {
+                        if (NumberTiles.combine(row, column, row + 1, column)) {
                             ++row; // Don't combine the just combined tile with the next one
                             changed = true;
                         }
@@ -122,9 +124,9 @@ function move(direction: Direction, combine: boolean): boolean {
             }
         }
     } else if (direction === Direction.LEFT) {
-        for (let row = 0; row < 4; row++) {
+        for (let row = 0; row < 4; ++row) {
             let holes = 0;
-            for (let column = 0; column < 4; column++) {
+            for (let column = 0; column < 4; ++column) {
                 if (NumberTiles.get(row, column)) {
                     if (holes) {
                         changed = NumberTiles.move(row, column, row, column - holes) || changed;
@@ -136,10 +138,10 @@ function move(direction: Direction, combine: boolean): boolean {
         }
         if (combine) {
             // Combine tiles with the same value
-            for (let row = 0; row < 4; row++) {
-                for (let column = 0; column < 4; column++) {
+            for (let row = 0; row < 4; ++row) {
+                for (let column = 0; column < 4; ++column) {
                     if (column - 1 >= 0) {
-                        if (combineTiles(row, column, row, column - 1)) {
+                        if (NumberTiles.combine(row, column, row, column - 1)) {
                             --column; // Don't combine the just combined tile with the next one
                             changed = true;
                         }
@@ -151,9 +153,9 @@ function move(direction: Direction, combine: boolean): boolean {
             }
         }
     } else if (direction === Direction.RIGHT) {
-        for (let row = 0; row < 4; row++) {
+        for (let row = 0; row < 4; ++row) {
             let holes = 0;
-            for (let column = 3; column >= 0; column--) {
+            for (let column = 3; column >= 0; --column) {
                 if (NumberTiles.get(row, column)) {
                     if (holes) {
                         changed = NumberTiles.move(row, column, row, column + holes) || changed;
@@ -165,10 +167,10 @@ function move(direction: Direction, combine: boolean): boolean {
         }
         if (combine) {
             // Combine tiles with the same value
-            for (let row = 0; row < 4; row++) {
-                for (let column = 3; column >= 0; column--) {
+            for (let row = 0; row < 4; ++row) {
+                for (let column = 3; column >= 0; --column) {
                     if (column + 1 < 4) {
-                        if (combineTiles(row, column, row, column + 1)) {
+                        if (NumberTiles.combine(row, column, row, column + 1)) {
                             ++column; // Don't combine the just combined tile with the next one
                             changed = true;
                         }
@@ -185,8 +187,8 @@ function move(direction: Direction, combine: boolean): boolean {
 }
 
 function isFull() {
-    for (let column = 0; column < 4; column++) {
-        for (let row = 0; row < 4; row++) {
+    for (let column = 0; column < 4; ++column) {
+        for (let row = 0; row < 4; ++row) {
             if (!NumberTiles.get(row, column)) {
                 return false;
             }
