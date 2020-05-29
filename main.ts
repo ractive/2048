@@ -92,7 +92,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (row - 1 >= 0) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row - 1][column];
-                        changed = combineTiles(tileA, tileB, row, column);
+                        changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
             }
@@ -122,7 +122,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (row + 1 < 4) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row + 1][column];
-                        changed = combineTiles(tileA, tileB, row, column);
+                        changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
             }
@@ -151,7 +151,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (column - 1 >= 0) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row][column - 1];
-                        changed = combineTiles(tileA, tileB, row, column);
+                        changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
             }
@@ -180,7 +180,7 @@ function move(direction: Direction, combine: boolean): boolean {
                     if (column + 1 < 4) {
                         const tileA = numberTiles[row][column];
                         const tileB = numberTiles[row][column + 1];
-                        changed = combineTiles(tileA, tileB, row, column);
+                        changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
             }
@@ -226,7 +226,7 @@ function doMove(direction: Direction) {
     if (couldMove) {
         createRandomTile();
     } else if (isFull()) {
-        game.over(false);
+        //game.over(false);
     }
 }
 
@@ -411,8 +411,10 @@ scene.setBackgroundImage(backgroundImage)
 
 createRandomTile();
 createRandomTile();
-// createTile(1, 1, 2);
-// createTile(3, 1, 2);
+// createTile(0, 0, 4);
+// createTile(1, 0, 4);
+// createTile(2, 0, 2);
+// createTile(3, 0, 2);
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     doMove(Direction.LEFT);
