@@ -49,8 +49,11 @@ function createRandomTile() {
     createTile(row, column, randomNumber());
 }
 
-function move(direction: Direction) {
+function move(direction: Direction, combine: boolean): boolean {
+    let changed = false;
+
     if (direction === Direction.UP) {
+        // Move the tiles up
         for (let column = 0; column < 4; column++) {
             let holes = 0;
             for (let row = 0; row < 4; row++) {
@@ -64,6 +67,29 @@ function move(direction: Direction) {
                 }
             }
         }
+        if (combine) {
+            // Combine tiles with the same value
+            for (let column = 0; column < 4; column++) {
+                for (let row = 0; row < 4; row++) {
+                    if (row - 1 >= 0) {
+                        const tileA = numberTiles[row][column];
+                        const tileB = numberTiles[row - 1][column];
+                        if (tileA && tileB && (tileA.n === tileB.n)) {
+                            // Combine them
+                            tileB.sprite.setImage(createImage(tileB.n * 2));
+                            tileB.n *= 2;
+                            tileA.sprite.destroy();
+                            numberTiles[row][column] = null;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                move(direction, false);
+            }
+        }
+
     } else if (direction === Direction.DOWN) {
         for (let column = 0; column < 4; column++) {
             let holes = 0;
@@ -76,6 +102,28 @@ function move(direction: Direction) {
                 } else {
                     ++holes;
                 }
+            }
+        }
+        if (combine) {
+            // Combine tiles with the same value
+            for (let column = 0; column < 4; column++) {
+                for (let row = 3; row >= 0; row--) {
+                    if (row + 1 < 4) {
+                        const tileA = numberTiles[row][column];
+                        const tileB = numberTiles[row + 1][column];
+                        if (tileA && tileB && (tileA.n === tileB.n)) {
+                            // Combine them
+                            tileB.sprite.setImage(createImage(tileB.n * 2));
+                            tileB.n *= 2;
+                            tileA.sprite.destroy();
+                            numberTiles[row][column] = null;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                move(direction, false);
             }
         }
     } else if (direction === Direction.LEFT) {
@@ -92,6 +140,28 @@ function move(direction: Direction) {
                 }
             }
         }
+        if (combine) {
+            // Combine tiles with the same value
+            for (let row = 0; row < 4; row++) {
+                for (let column = 0; column < 4; column++) {
+                    if (column - 1 >= 0) {
+                        const tileA = numberTiles[row][column];
+                        const tileB = numberTiles[row][column - 1];
+                        if (tileA && tileB && (tileA.n === tileB.n)) {
+                            // Combine them
+                            tileB.sprite.setImage(createImage(tileB.n * 2));
+                            tileB.n *= 2;
+                            tileA.sprite.destroy();
+                            numberTiles[row][column] = null;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                move(direction, false);
+            }
+        }
     } else if (direction === Direction.RIGHT) {
         for (let row = 0; row < 4; row++) {
             let holes = 0;
@@ -106,6 +176,28 @@ function move(direction: Direction) {
                 }
             }
         }
+        if (combine) {
+            // Combine tiles with the same value
+            for (let row = 0; row < 4; row++) {
+                for (let column = 0; column < 4; column++) {
+                    if (column + 1 < 4) {
+                        const tileA = numberTiles[row][column];
+                        const tileB = numberTiles[row][column + 1];
+                        if (tileA && tileB && (tileA.n === tileB.n)) {
+                            // Combine them
+                            tileB.sprite.setImage(createImage(tileB.n * 2));
+                            tileB.n *= 2;
+                            tileA.sprite.destroy();
+                            numberTiles[row][column] = null;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                move(direction, false);
+            }
+        }
     }
 
     // move the sprites if necessary
@@ -115,13 +207,22 @@ function move(direction: Direction) {
             const tile = numberTiles[row][column];
             const expectedY = offsetY + row * (width - 1) + 14;
             const expectedX = offsetX + column * (width - 1) + 14;
-            if (tile.sprite.x != expectedX || tile.sprite.y != expectedY) {
-                tile.sprite.setPosition(expectedX, expectedY)
+            const xChanged = tile.sprite.x != expectedX;
+            const yChanged = tile.sprite.y != expectedY;
+            if (xChanged || yChanged) {
+                tile.sprite.setPosition(expectedX, expectedY);
+                changed = true;
             }
         }
     }
 
-    createRandomTile();
+    return changed;
+}
+
+function doMove(direction: Direction) {
+    if (move(direction, true)) {
+        createRandomTile();
+    }
 }
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
@@ -271,18 +372,20 @@ for (let row = 0; row < 4; row++) {
 }
 scene.setBackgroundImage(backgroundImage)
 
-createRandomTile();
-createRandomTile();
+// createRandomTile();
+// createRandomTile();
+createTile(1, 1, 2);
+createTile(3, 1, 2);
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
-    move(Direction.LEFT);
+    doMove(Direction.LEFT);
 });
 controller.right.onEvent(ControllerButtonEvent.Pressed, () => {
-    move(Direction.RIGHT);
+    doMove(Direction.RIGHT);
 });
 controller.up.onEvent(ControllerButtonEvent.Pressed, () => {
-    move(Direction.UP);
+    doMove(Direction.UP);
 });
 controller.down.onEvent(ControllerButtonEvent.Pressed, () => {
-    move(Direction.DOWN);
+    doMove(Direction.DOWN);
 });
