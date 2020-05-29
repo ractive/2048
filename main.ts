@@ -424,10 +424,10 @@ for (let row = 0; row < 4; row++) {
 }
 scene.setBackgroundImage(backgroundImage)
 
-// createRandomTile();
-// createRandomTile();
-createTile(1, 1, 2);
-createTile(3, 1, 2);
+createRandomTile();
+createRandomTile();
+// createTile(1, 1, 2);
+// createTile(3, 1, 2);
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     doMove(Direction.LEFT);
