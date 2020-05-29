@@ -12,15 +12,20 @@ function randomNumber() {
     return Math.percentChance(10) ? 4 : 2;
 }
 
+function colorFor(n: number): number {
+    const c: number = Math.round(tileBackground2Color + ((Math.log(n) / Math.log(2) - 0))) - 1;
+    return c <= 15 ? c: fontDarkColor;
+}
+
 function createImage(n: number): Image {
     const img = image.create(width - 2, width - 2);
-    img.fill(4);
-    img.drawRect(0, 0, img.height, img.width, 14);
+    img.fill(colorFor(n));
+    img.drawRect(0, 0, img.height, img.width, gridColor);
     const text = "" + n;
     const font = image.font5;
-    let w = text.length * font.charWidth
-    let offset = (width - w) / 2
-    img.print(text, offset, (img.height - font.charHeight) / 2, 1, font)
+    let w = text.length * font.charWidth;
+    let offset = (width - w) / 2;
+    img.print(text, offset, (img.height - font.charHeight) / 2, n > 4 ? white : fontDarkColor, font)
     return img;
 }
 
@@ -31,7 +36,7 @@ function createTile(row: number, column: number, n: number) {
     const frames = 4;
     const step = animationImage.height / frames;
     for (let i = 0; i < frames; i++) {
-        animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, 4);
+        animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, colorFor(n));
         pause(15);
     }
     s.setImage(createImage(n));
@@ -226,7 +231,7 @@ function doMove(direction: Direction) {
 }
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
-scene.setBackgroundColor(13)
+
 const width = 28
 const offsetX = 26;
 const offsetY = 5;
@@ -237,6 +242,37 @@ const numberTiles: Tile[][] = [
     [null, null, null, null]
 ];
 
+const backgroundColor = 0;
+const gridColor = 1;
+const gridBackgroundColor = 2;
+const tileBackgroundColor = 3;
+const fontDarkColor = 4;
+const white = 5;
+const tileBackground2Color = 6;
+let bg = tileBackground2Color;
+
+const p = palette.defaultPalette();
+p.setColor(backgroundColor, color.rgb(250, 248, 239));
+p.setColor(gridColor, color.rgb(187, 173, 160));
+p.setColor(gridBackgroundColor, color.rgb(205, 193, 180));
+p.setColor(tileBackgroundColor, color.rgb(205, 193, 180));
+p.setColor(fontDarkColor, color.rgb(119, 110, 101));
+p.setColor(white, color.rgb(255, 255, 255));
+
+p.setColor(tileBackground2Color, color.rgb(238, 228, 218));
+p.setColor(++bg, color.rgb(236, 224, 200)); // tile background 4
+p.setColor(++bg, color.rgb(242, 177, 121)); // tile background 8
+p.setColor(++bg, color.rgb(245, 149, 99)); // tile background 16
+p.setColor(++bg, color.rgb(245, 124, 95)); // tile background 32
+p.setColor(++bg, color.rgb(244, 94, 59)); // tile background 64
+p.setColor(++bg, color.rgb(232, 206, 128)); // tile background 128
+p.setColor(++bg, color.rgb(237, 204, 97)); // tile background 256
+p.setColor(++bg, color.rgb(236, 200, 80)); // tile background 512
+p.setColor(++bg, color.rgb(237, 197, 64)); // tile background 1024
+
+palette.setColors(p);
+
+scene.setBackgroundColor(backgroundColor)
 
 const backgroundImage = img`
     . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -361,13 +397,14 @@ const backgroundImage = img`
     . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 `
 // Draw the grid
-backgroundImage.drawRect(offsetX - 1, offsetY - 1, width * 4 - 1 , width * 4 - 1, 14);
+backgroundImage.fillRect(offsetX - 1, offsetY - 1, width * 4 - 1 , width * 4 - 1, tileBackgroundColor);
+backgroundImage.drawRect(offsetX - 1, offsetY - 1, width * 4 - 1 , width * 4 - 1, gridColor);
 for (let row = 0; row < 4; row++) {
     for (let column = 0; column < 4; column++) {
         const x = offsetX + column * (width - 1)
         const y = offsetY + row * (width - 1)
-        backgroundImage.drawRect(x, y, width, width, 14);
-        backgroundImage.drawRect(x + 1, y + 1, width - 2 , width - 2, 14);
+        backgroundImage.drawRect(x, y, width, width, gridColor);
+        backgroundImage.drawRect(x + 1, y + 1, width - 2 , width - 2, gridColor);
     }
 }
 scene.setBackgroundImage(backgroundImage)

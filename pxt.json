@@ -2,7 +2,8 @@
     "name": "2048",
     "description": "",
     "dependencies": {
-        "device": "*"
+        "device": "*",
+        "palette": "*"
     },
     "files": [
         "main.blocks",
