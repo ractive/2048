@@ -1,16 +1,48 @@
-function createTile(row: number, column: number, n: number) {
-    numberTiles[row][column] = new Tile(n, row, column);
-}
+namespace NumberTiles {
+    const numberTiles: Tile[][] = [
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null]
+    ];
 
-function createRandomTile() {
-    let row = 0;
-    let column = 0;
-    do {
-        row = randint(0, 3);
-        column = randint(0, 3);
-    } while (numberTiles[row][column]);
+    export function get(row: number, column: number): Tile {
+        if (row < 0 || row > 3 || column < 0 || column > 3) {
+            return null;
+        }
+        return numberTiles[row][column];
+    }
 
-    createTile(row, column, Math.percentChance(10) ? 4 : 2);
+    export function set(row: number, column: number, tile: Tile): boolean {
+        numberTiles[row][column] = tile;
+        return tile.set(row, column);
+    }
+
+    export function move(fromRow: number, fromColumn: number, toRow: number, toColumn: number): boolean {
+            const changed = NumberTiles.set(toRow, toColumn, NumberTiles.get(fromRow, fromColumn));
+            NumberTiles.remove(fromRow, fromColumn);
+
+            return changed;
+    }
+
+    export function remove(row: number, column: number) {
+        numberTiles[row][column] = null;
+    }
+
+    export function createTile(row: number, column: number, n: number) {
+        numberTiles[row][column] = new Tile(n, row, column);
+    }
+
+    export function createRandomTile() {
+        let row = 0;
+        let column = 0;
+        do {
+            row = randint(0, 3);
+            column = randint(0, 3);
+        } while (numberTiles[row][column]);
+
+        createTile(row, column, Math.percentChance(10) ? 4 : 2);
+    }
 }
 
 function combineTiles(tileA: Tile, tileB: Tile, row: number, column: number): boolean {
@@ -18,7 +50,7 @@ function combineTiles(tileA: Tile, tileB: Tile, row: number, column: number): bo
         // Combine them
         tileB.n *= 2;
         tileA.destroy();
-        numberTiles[row][column] = null;
+        NumberTiles.remove(row, column);
         return true;
     } else {
         return false;
@@ -33,11 +65,9 @@ function move(direction: Direction, combine: boolean): boolean {
         for (let column = 0; column < 4; column++) {
             let holes = 0;
             for (let row = 0; row < 4; row++) {
-                if (numberTiles[row][column]) {
+                if (NumberTiles.get(row, column)) {
                     if (holes) {
-                        changed = numberTiles[row][column].set(row - holes, column) || changed;
-                        numberTiles[row - holes][column] = numberTiles[row][column];
-                        numberTiles[row][column] = null;
+                        changed = NumberTiles.move(row, column, row - holes, column) || changed;
                     }
                 } else {
                     ++holes;
@@ -49,8 +79,8 @@ function move(direction: Direction, combine: boolean): boolean {
             for (let column = 0; column < 4; column++) {
                 for (let row = 0; row < 4; row++) {
                     if (row - 1 >= 0) {
-                        const tileA = numberTiles[row][column];
-                        const tileB = numberTiles[row - 1][column];
+                        const tileA = NumberTiles.get(row, column);
+                        const tileB = NumberTiles.get(row - 1, column);
                         changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
@@ -64,11 +94,9 @@ function move(direction: Direction, combine: boolean): boolean {
         for (let column = 0; column < 4; column++) {
             let holes = 0;
             for (let row = 3; row >= 0; row--) {
-                if (numberTiles[row][column]) {
+                if (NumberTiles.get(row, column)) {
                     if (holes) {
-                        changed = numberTiles[row][column].set(row + holes, column) || changed ;
-                        numberTiles[row + holes][column] = numberTiles[row][column];
-                        numberTiles[row][column] = null;
+                        changed = NumberTiles.move(row, column, row + holes, column) || changed ;
                     }
                 } else {
                     ++holes;
@@ -80,8 +108,8 @@ function move(direction: Direction, combine: boolean): boolean {
             for (let column = 0; column < 4; column++) {
                 for (let row = 3; row >= 0; row--) {
                     if (row + 1 < 4) {
-                        const tileA = numberTiles[row][column];
-                        const tileB = numberTiles[row + 1][column];
+                        const tileA = NumberTiles.get(row, column);
+                        const tileB = NumberTiles.get(row + 1, column);
                         changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
@@ -94,11 +122,9 @@ function move(direction: Direction, combine: boolean): boolean {
         for (let row = 0; row < 4; row++) {
             let holes = 0;
             for (let column = 0; column < 4; column++) {
-                if (numberTiles[row][column]) {
+                if (NumberTiles.get(row, column)) {
                     if (holes) {
-                        changed = numberTiles[row][column].set(row, column - holes) || changed;
-                        numberTiles[row][column - holes] = numberTiles[row][column];
-                        numberTiles[row][column] = null;
+                        changed = NumberTiles.move(row, column, row, column - holes) || changed;
                     }
                 } else {
                     ++holes;
@@ -110,8 +136,8 @@ function move(direction: Direction, combine: boolean): boolean {
             for (let row = 0; row < 4; row++) {
                 for (let column = 0; column < 4; column++) {
                     if (column - 1 >= 0) {
-                        const tileA = numberTiles[row][column];
-                        const tileB = numberTiles[row][column - 1];
+                        const tileA = NumberTiles.get(row, column);
+                        const tileB = NumberTiles.get(row, column - 1);
                         changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
@@ -124,11 +150,9 @@ function move(direction: Direction, combine: boolean): boolean {
         for (let row = 0; row < 4; row++) {
             let holes = 0;
             for (let column = 3; column >= 0; column--) {
-                if (numberTiles[row][column]) {
+                if (NumberTiles.get(row, column)) {
                     if (holes) {
-                        changed = numberTiles[row][column].set(row, column + holes) || changed;
-                        numberTiles[row][column + holes] = numberTiles[row][column];
-                        numberTiles[row][column] = null;
+                        changed = NumberTiles.move(row, column, row, column + holes) || changed;
                     }
                 } else {
                     ++holes;
@@ -140,8 +164,8 @@ function move(direction: Direction, combine: boolean): boolean {
             for (let row = 0; row < 4; row++) {
                 for (let column = 0; column < 4; column++) {
                     if (column + 1 < 4) {
-                        const tileA = numberTiles[row][column];
-                        const tileB = numberTiles[row][column + 1];
+                        const tileA = NumberTiles.get(row, column);
+                        const tileB = NumberTiles.get(row, column + 1);
                         changed = combineTiles(tileA, tileB, row, column) || changed;
                     }
                 }
@@ -158,7 +182,7 @@ function move(direction: Direction, combine: boolean): boolean {
 function isFull() {
     for (let column = 0; column < 4; column++) {
         for (let row = 0; row < 4; row++) {
-            if (!numberTiles[row][column]) {
+            if (!NumberTiles.get(row, column)) {
                 return false;
             }
         }
@@ -170,20 +194,13 @@ function isFull() {
 function doMove(direction: Direction) {
     const couldMove = move(direction, true);
     if (couldMove) {
-        createRandomTile();
+        NumberTiles.createRandomTile();
     } else if (isFull()) {
         //game.over(false);
     }
 }
 
 enum Direction { UP, DOWN, LEFT, RIGHT }
-
-const numberTiles: Tile[][] = [
-    [null, null, null, null],
-    [null, null, null, null],
-    [null, null, null, null],
-    [null, null, null, null]
-];
 
 const backgroundColor = 0;
 const gridColor = 1;
@@ -341,8 +358,8 @@ const backgroundImage = img`
 `
 scene.setBackgroundImage(backgroundImage)
 
-createRandomTile();
-createRandomTile();
+NumberTiles.createRandomTile();
+NumberTiles.createRandomTile();
 // createTile(0, 0, 4);
 // createTile(1, 0, 4);
 // createTile(2, 0, 2);
