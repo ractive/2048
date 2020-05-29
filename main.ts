@@ -15,8 +15,16 @@ function createImage(n: number): Image {
 }
 
 function createTile(row: number, column: number, n: number) {
-    const s = sprites.create(createImage(n));
+    const animationImage = image.create(width - 2, width - 2);
+    const s = sprites.create(animationImage);
     s.setPosition(offsetX + column * (width - 1) + 14, offsetY + row * (width - 1) + 14)
+    const frames = 4;
+    const step = animationImage.height / frames;
+    for (let i = 0; i < frames; i++) {
+        animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, 4);
+        pause(15);
+    }
+    s.setImage(createImage(n));
     numberTiles[row][column] = s;
 }
 
@@ -75,10 +83,6 @@ const numberTiles: Sprite[][] = [
     [null, null, null, null]
 ];
 
-createRandomTile();
-createRandomTile();
-// createTile(3, 1, randomNumber());
-// createTile(2, 3, randomNumber());
 
 const backgroundImage = img`
     . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -213,6 +217,9 @@ for (let row = 0; row < 4; row++) {
     }
 }
 scene.setBackgroundImage(backgroundImage)
+
+createRandomTile();
+createRandomTile();
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     move(Direction.LEFT);
