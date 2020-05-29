@@ -21,7 +21,6 @@ namespace NumberTiles {
     export function move(fromRow: number, fromColumn: number, toRow: number, toColumn: number): boolean {
             const changed = NumberTiles.set(toRow, toColumn, NumberTiles.get(fromRow, fromColumn));
             NumberTiles.remove(fromRow, fromColumn);
-
             return changed;
     }
 
@@ -45,12 +44,14 @@ namespace NumberTiles {
     }
 }
 
-function combineTiles(tileA: Tile, tileB: Tile, row: number, column: number): boolean {
+function combineTiles(rowA: number, columnA: number, rowB: number, columnB: number): boolean {
+    const tileA = NumberTiles.get(rowA, columnA);
+    const tileB = NumberTiles.get(rowB, columnB);
     if (tileA && tileB && (tileA.n === tileB.n)) {
         // Combine them
         tileB.n *= 2;
         tileA.destroy();
-        NumberTiles.remove(row, column);
+        NumberTiles.remove(rowA, columnA);
         return true;
     } else {
         return false;
@@ -77,11 +78,12 @@ function move(direction: Direction, combine: boolean): boolean {
         if (combine) {
             // Combine tiles with the same value
             for (let column = 0; column < 4; column++) {
-                for (let row = 0; row < 4; row++) {
+                for (let row = 3; row >= 0; row--) {
                     if (row - 1 >= 0) {
-                        const tileA = NumberTiles.get(row, column);
-                        const tileB = NumberTiles.get(row - 1, column);
-                        changed = combineTiles(tileA, tileB, row, column) || changed;
+                        if (combineTiles(row, column, row - 1, column)) {
+                            --row; // Don't combine the just combined tile with the next one
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -106,11 +108,12 @@ function move(direction: Direction, combine: boolean): boolean {
         if (combine) {
             // Combine tiles with the same value
             for (let column = 0; column < 4; column++) {
-                for (let row = 3; row >= 0; row--) {
+                for (let row = 0; row < 4; row++) {
                     if (row + 1 < 4) {
-                        const tileA = NumberTiles.get(row, column);
-                        const tileB = NumberTiles.get(row + 1, column);
-                        changed = combineTiles(tileA, tileB, row, column) || changed;
+                        if (combineTiles(row, column, row + 1, column)) {
+                            ++row; // Don't combine the just combined tile with the next one
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -136,9 +139,10 @@ function move(direction: Direction, combine: boolean): boolean {
             for (let row = 0; row < 4; row++) {
                 for (let column = 0; column < 4; column++) {
                     if (column - 1 >= 0) {
-                        const tileA = NumberTiles.get(row, column);
-                        const tileB = NumberTiles.get(row, column - 1);
-                        changed = combineTiles(tileA, tileB, row, column) || changed;
+                        if (combineTiles(row, column, row, column - 1)) {
+                            --column; // Don't combine the just combined tile with the next one
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -162,11 +166,12 @@ function move(direction: Direction, combine: boolean): boolean {
         if (combine) {
             // Combine tiles with the same value
             for (let row = 0; row < 4; row++) {
-                for (let column = 0; column < 4; column++) {
+                for (let column = 3; column >= 0; column--) {
                     if (column + 1 < 4) {
-                        const tileA = NumberTiles.get(row, column);
-                        const tileB = NumberTiles.get(row, column + 1);
-                        changed = combineTiles(tileA, tileB, row, column) || changed;
+                        if (combineTiles(row, column, row, column + 1)) {
+                            ++column; // Don't combine the just combined tile with the next one
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -360,10 +365,9 @@ scene.setBackgroundImage(backgroundImage)
 
 NumberTiles.createRandomTile();
 NumberTiles.createRandomTile();
-// createTile(0, 0, 4);
-// createTile(1, 0, 4);
-// createTile(2, 0, 2);
-// createTile(3, 0, 2);
+// NumberTiles.createTile(0, 2, 8); NumberTiles.createTile(0, 3, 16);
+// NumberTiles.createTile(1, 0, 2); NumberTiles.createTile(1, 1, 4); NumberTiles.createTile(1, 2, 4); NumberTiles.createTile(1, 3, 8);
+
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     doMove(Direction.LEFT);

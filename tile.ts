@@ -15,18 +15,38 @@ class Tile {
         const step = animationImage.height / frames;
         for (let i = 0; i < frames; i++) {
             animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, Tile.colorFor(n));
-            pause(15);
+            pause(20);
         }
         this.n = n;
     }
 
-    set n(n: number) { 
-        this.sprite.setImage(Tile.createImage(n));
+    set n(n: number) {
+        if (this._n * 2 === n) {
+            const img = image.create(Tile.WIDTH - 2, Tile.WIDTH - 2);
+            img.fillRect(0, 0, img.width, img.height, white);
+            Tile.print(n, img, fontDarkColor);
+            this.sprite.setImage(img);
+            setTimeout(() => {
+                if (this.sprite) {
+                    this.sprite.setImage(Tile.createImage(n));
+                }
+            }, 175);
+        } else {
+            this.sprite.setImage(Tile.createImage(n));
+        }
         this._n = n;
     }
 
     get n(): number {
         return this._n;
+    }
+
+    get row(): number {
+        return this._row;
+    }
+    
+    get column(): number {
+        return this._column;
     }
 
     public destroy() {
@@ -52,15 +72,19 @@ class Tile {
         return c <= 15 ? c: fontDarkColor;
     }
 
-    private static createImage(n: number): Image {
-        const img = image.create(Tile.WIDTH - 2, Tile.WIDTH - 2);
-        img.fill(Tile.colorFor(n));
-        img.drawRect(0, 0, img.height, img.width, gridColor);
+    private static print(n: number, img: Image, color: number) {
         const text = "" + n;
         const font = image.font5;
         let w = text.length * font.charWidth;
         let offset = (Tile.WIDTH - w) / 2;
-        img.print(text, offset, (img.height - font.charHeight) / 2, n > 4 ? white : fontDarkColor, font)
+        img.print(text, offset, (img.height - font.charHeight) / 2, color, font)
+    }
+
+    private static createImage(n: number): Image {
+        const img = image.create(Tile.WIDTH - 2, Tile.WIDTH - 2);
+        img.fill(Tile.colorFor(n));
+        img.drawRect(0, 0, img.height, img.width, gridColor);
+        Tile.print(n, img, n > 4 ? white : fontDarkColor)
         return img;
     }
 }
