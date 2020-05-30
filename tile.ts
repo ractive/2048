@@ -15,7 +15,7 @@ class Tile {
         const step = animationImage.height / frames;
         for (let i = 0; i < frames; i++) {
             animationImage.fillRect((animationImage.width - i * step) / 2, (animationImage.height - i * step) / 2, i * step, i * step, Tile.colorFor(n));
-            pause(20);
+            pause(40);
         }
         this.n = n;
     }
