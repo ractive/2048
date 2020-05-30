@@ -50,7 +50,7 @@ namespace NumberTiles {
             // Combine them
             tileB.n *= 2;
             info.changeScoreBy(tileB.n);
-            if (tileB.n === 4 && !winDialogShown) {
+            if (tileB.n === 2048 && !winDialogShown) {
                 music.powerDown.play()
                 effects.confetti.startScreenEffect(3000);
                 pause(3000);
