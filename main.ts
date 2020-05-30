@@ -49,6 +49,7 @@ namespace NumberTiles {
         if (tileA && tileB && (tileA.n === tileB.n)) {
             // Combine them
             tileB.n *= 2;
+            info.changeScoreBy(tileB.n);
             tileA.destroy();
             remove(rowA, columnA);
             return true;
@@ -70,121 +71,91 @@ function forEachBackwards(consume: (i: number, skipNext: (n: number) => number) 
     }
 }
 
+function moveTiles(holes: number, row: number, column: number, moveRow: (row: number, holes: number) => number, moveColumn: (column: number, holes: number) => number, doesChange: () => void): number {
+    if (NumberTiles.get(row, column)) {
+        if (holes && NumberTiles.move(row, column, moveRow(row, holes), moveColumn(column, holes))) {
+            doesChange();
+        }
+    } else {
+        ++holes;
+    }
+
+    return holes;
+}
+
+function doCombine(rowA: number, columnA: number, rowB: number, columnB: number, skipNext: (n: number) => number, doesChange: () => void) {
+    if (NumberTiles.combine(rowA, columnA, rowB, columnB)) {
+        skipNext(1);
+        doesChange();
+    }
+}
 
 function move(direction: Direction, combine: boolean): boolean {
     let changed = false;
+    const doesChange = () => changed = true;
 
     if (direction === Direction.UP) {
-        // Move the tiles up
         forEach((column) => {
             let holes = 0;
             forEach((row) => {
-                if (NumberTiles.get(row, column)) {
-                    if (holes && NumberTiles.move(row, column, row - holes, column)) {
-                        changed = true;
-                    }
-                } else {
-                    ++holes;
-                }
+                holes = moveTiles(holes, row, column, (row, holes) => row - holes, (columns, holes) => columns, doesChange);
             });
         });
         if (combine) {
-            // Combine tiles with the same value
             forEach((column) => {
                 forEachBackwards((row, skipNext) => {
-                    if (NumberTiles.combine(row, column, row - 1, column)) {
-                        skipNext(1);
-                        changed = true;
-                    }
-
+                    doCombine(row, column, row - 1, column, skipNext, doesChange);
                 });
             });
-            if (changed) {
-                move(direction, false);
-            }
         }
 
     } else if (direction === Direction.DOWN) {
         forEach((column) => {
             let holes = 0;
             forEachBackwards((row) => {
-                if (NumberTiles.get(row, column)) {
-                    if (holes && NumberTiles.move(row, column, row + holes, column)) {
-                        changed = true;
-                    }
-                } else {
-                    ++holes;
-                }
+                holes = moveTiles(holes, row, column, (row, holes) => row + holes, (columns, holes) => columns, doesChange);
             });
         });
         if (combine) {
-            // Combine tiles with the same value
             forEach((column) => {
                 forEach((row, skipNext) => {
-                    if (NumberTiles.combine(row, column, row + 1, column)) {
-                        skipNext(1);
-                        changed = true;
-                    }
+                    doCombine(row, column, row + 1, column, skipNext, doesChange);
                 });
             });
-            if (changed) {
-                move(direction, false);
-            }
         }
     } else if (direction === Direction.LEFT) {
         forEach((row) => {
             let holes = 0;
             forEach((column) => {
-                if (NumberTiles.get(row, column)) {
-                    if (holes && NumberTiles.move(row, column, row, column - holes)) {
-                        changed = true;
-                    }
-                } else {
-                    ++holes;
-                }
+               holes = moveTiles(holes, row, column, (row, holes) => row, (columns, holes) => columns - holes, doesChange);
             });
         });
         if (combine) {
-            // Combine tiles with the same value
             forEach((row) => {
                 forEachBackwards((column, skipNext) => {
-                    if (NumberTiles.combine(row, column, row, column - 1)) {
-                        skipNext(1);
-                        changed = true;
-                    }
+                    doCombine(row, column, row, column - 1, skipNext, doesChange);
                 });
             });
-            if (changed) {
-                move(direction, false);
-            }
         }
     } else if (direction === Direction.RIGHT) {
         forEach((row) => {
             let holes = 0;
             forEachBackwards((column) => {
-                if (NumberTiles.get(row, column)) {
-                    if (holes && NumberTiles.move(row, column, row, column + holes)) {
-                        changed = true;
-                    }
-                } else {
-                    ++holes;
-                }
+                holes = moveTiles(holes, row, column, (row, holes) => row, (columns, holes) => columns + holes, doesChange);
             });
         });
         if (combine) {
-            // Combine tiles with the same value
             forEach((row) => {
                 forEach((column, skipNext) => {
-                    if (NumberTiles.combine(row, column, row, column + 1)) {
-                        skipNext(1);
-                        changed = true;
-                    }
+                    doCombine(row, column, row, column + 1, skipNext, doesChange);
                 });
             });
-            if (changed) {
-                move(direction, false);
-            }
         }
+    }
+    
+    if (changed) {
+        // After combining tiles, ther may be holes again, so move the tiles again, but don't combine them anymore
+        move(direction, false);
     }
 
     return changed;
@@ -202,12 +173,39 @@ function isFull() {
     return true;
 }
 
+function hasCombinableTiles() {
+    let prev: Tile = null;
+    for (let column = 0; column < 4; ++column) {
+        prev = null;
+        for (let row = 0; row < 4; ++row) {
+            const current = NumberTiles.get(row, column);
+            if (prev && current && prev.n === current.n) {
+                return true;
+            }
+            prev = current;
+        }
+    }
+
+    for (let row = 0; row < 4; ++row) {
+        prev = null;
+        for (let column = 0; column < 4; ++column) {
+            const current = NumberTiles.get(row, column);
+            if (prev && current && prev.n === current.n) {
+                return true;
+            }
+            prev = current;
+        }
+    }
+
+    return false;
+}
+
 function doMove(direction: Direction) {
     const couldMove = move(direction, true);
     if (couldMove) {
         NumberTiles.createRandomTile();
-    } else if (isFull()) {
-        //game.over(false);
+    } else if (isFull() && !hasCombinableTiles()) {
+        game.over(false);
     }
 }
 
@@ -373,7 +371,7 @@ NumberTiles.createRandomTile();
 NumberTiles.createRandomTile();
 // NumberTiles.createTile(0, 2, 8); NumberTiles.createTile(0, 3, 16);
 // NumberTiles.createTile(1, 0, 2); NumberTiles.createTile(1, 1, 4); NumberTiles.createTile(1, 2, 4); NumberTiles.createTile(1, 3, 8);
-
+info.setScore(0)
 
 controller.left.onEvent(ControllerButtonEvent.Pressed, () => {
     doMove(Direction.LEFT);
