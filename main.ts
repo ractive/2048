@@ -103,7 +103,7 @@ function move(direction: Direction, combine: boolean): boolean {
         });
         if (combine) {
             forEach((column) => {
-                forEachBackwards((row, skipNext) => {
+                forEach((row, skipNext) => {
                     doCombine(row, column, row - 1, column, skipNext, doesChange);
                 });
             });
@@ -118,7 +118,7 @@ function move(direction: Direction, combine: boolean): boolean {
         });
         if (combine) {
             forEach((column) => {
-                forEach((row, skipNext) => {
+                forEachBackwards((row, skipNext) => {
                     doCombine(row, column, row + 1, column, skipNext, doesChange);
                 });
             });
@@ -132,7 +132,7 @@ function move(direction: Direction, combine: boolean): boolean {
         });
         if (combine) {
             forEach((row) => {
-                forEachBackwards((column, skipNext) => {
+                forEach((column, skipNext) => {
                     doCombine(row, column, row, column - 1, skipNext, doesChange);
                 });
             });
@@ -146,7 +146,7 @@ function move(direction: Direction, combine: boolean): boolean {
         });
         if (combine) {
             forEach((row) => {
-                forEach((column, skipNext) => {
+                forEachBackwards((column, skipNext) => {
                     doCombine(row, column, row, column + 1, skipNext, doesChange);
                 });
             });
