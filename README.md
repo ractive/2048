@@ -1,31 +1,16 @@
- 
+# 2048
+What do I need to say about 2048? I guess most of you already spent hours gaming it... ;-)
+https://ractive.github.io/2048/
 
+For the ones that don't know it yet:
+- Use the gamepad to move the tiles into a direction, where they slide as far as possible
+- If two tiles with the same number collide, they get combined into one tile with double the value
+- A new tile with the value 2 (or less often 4) appears after every move at a random position on a free spot
+- The goal is to create a tile with the value of 2048 (and more)
+- If there are no more spots for new tiles and no tiles can be combines anymore, the game is lost
 
-> Open this page at [https://ractive.github.io/2048/](https://ractive.github.io/2048/)
-
-## Use as Extension
-
-This repository can be added as an **extension** in MakeCode.
-
-* open [https://arcade.makecode.com/](https://arcade.makecode.com/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/ractive/2048** and import
-
-## Edit this project ![Build status badge](https://github.com/ractive/2048/workflows/MakeCode/badge.svg)
-
-To edit this repository in MakeCode.
-
-* open [https://arcade.makecode.com/](https://arcade.makecode.com/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/ractive/2048** and click import
-
-## Blocks preview
-
-This image shows the blocks code from the last commit in master.
-This image may take a few minutes to refresh.
-
-![A rendered view of the blocks](https://github.com/ractive/2048/raw/master/.github/makecode/blocks.png)
+And here's some interesting info about the original game:
+https://en.wikipedia.org/wiki/2048_(video_game)
 
 #### Metadata (used for search, rendering)
 
