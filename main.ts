@@ -58,6 +58,17 @@ namespace NumberTiles {
     }
 }
 
+function forEach(consume: (i: number, skipNext: (n: number) => number) => void) {
+    for (let i = 0; i < 4; ++i) {
+        consume(i, (n: number) => i += n);
+    }
+}
+
+function forEachBackwards(consume: (i: number, skipNext: (n: number) => number) => void) {
+    for (let i = 3; i >= 0; --i) {
+        consume(i, (n: number) => i -= n);
+    }
+}
 
 
 function move(direction: Direction, combine: boolean): boolean {
@@ -65,118 +76,111 @@ function move(direction: Direction, combine: boolean): boolean {
 
     if (direction === Direction.UP) {
         // Move the tiles up
-        for (let column = 0; column < 4; ++column) {
+        forEach((column) => {
             let holes = 0;
-            for (let row = 0; row < 4; ++row) {
+            forEach((row) => {
                 if (NumberTiles.get(row, column)) {
-                    if (holes) {
-                        changed = NumberTiles.move(row, column, row - holes, column) || changed;
+                    if (holes && NumberTiles.move(row, column, row - holes, column)) {
+                        changed = true;
                     }
                 } else {
                     ++holes;
                 }
-            }
-        }
+            });
+        });
         if (combine) {
             // Combine tiles with the same value
-            for (let column = 0; column < 4; ++column) {
-                for (let row = 3; row >= 0; --row) {
-                    if (row - 1 >= 0) {
-                        if (NumberTiles.combine(row, column, row - 1, column)) {
-                            --row; // Don't combine the just combined tile with the next one
-                            changed = true;
-                        }
+            forEach((column) => {
+                forEachBackwards((row, skipNext) => {
+                    if (NumberTiles.combine(row, column, row - 1, column)) {
+                        skipNext(1);
+                        changed = true;
                     }
-                }
-            }
+
+                });
+            });
             if (changed) {
                 move(direction, false);
             }
         }
 
     } else if (direction === Direction.DOWN) {
-        for (let column = 0; column < 4; ++column) {
+        forEach((column) => {
             let holes = 0;
-            for (let row = 3; row >= 0; --row) {
+            forEachBackwards((row) => {
                 if (NumberTiles.get(row, column)) {
-                    if (holes) {
-                        changed = NumberTiles.move(row, column, row + holes, column) || changed ;
+                    if (holes && NumberTiles.move(row, column, row + holes, column)) {
+                        changed = true;
                     }
                 } else {
                     ++holes;
                 }
-            }
-        }
+            });
+        });
         if (combine) {
             // Combine tiles with the same value
-            for (let column = 0; column < 4; ++column) {
-                for (let row = 0; row < 4; ++row) {
-                    if (row + 1 < 4) {
-                        if (NumberTiles.combine(row, column, row + 1, column)) {
-                            ++row; // Don't combine the just combined tile with the next one
-                            changed = true;
-                        }
+            forEach((column) => {
+                forEach((row, skipNext) => {
+                    if (NumberTiles.combine(row, column, row + 1, column)) {
+                        skipNext(1);
+                        changed = true;
                     }
-                }
-            }
+                });
+            });
             if (changed) {
                 move(direction, false);
             }
         }
     } else if (direction === Direction.LEFT) {
-        for (let row = 0; row < 4; ++row) {
+        forEach((row) => {
             let holes = 0;
-            for (let column = 0; column < 4; ++column) {
+            forEach((column) => {
                 if (NumberTiles.get(row, column)) {
-                    if (holes) {
-                        changed = NumberTiles.move(row, column, row, column - holes) || changed;
+                    if (holes && NumberTiles.move(row, column, row, column - holes)) {
+                        changed = true;
                     }
                 } else {
                     ++holes;
                 }
-            }
-        }
+            });
+        });
         if (combine) {
             // Combine tiles with the same value
-            for (let row = 0; row < 4; ++row) {
-                for (let column = 0; column < 4; ++column) {
-                    if (column - 1 >= 0) {
-                        if (NumberTiles.combine(row, column, row, column - 1)) {
-                            --column; // Don't combine the just combined tile with the next one
-                            changed = true;
-                        }
+            forEach((row) => {
+                forEachBackwards((column, skipNext) => {
+                    if (NumberTiles.combine(row, column, row, column - 1)) {
+                        skipNext(1);
+                        changed = true;
                     }
-                }
-            }
+                });
+            });
             if (changed) {
                 move(direction, false);
             }
         }
     } else if (direction === Direction.RIGHT) {
-        for (let row = 0; row < 4; ++row) {
+        forEach((row) => {
             let holes = 0;
-            for (let column = 3; column >= 0; --column) {
+            forEachBackwards((column) => {
                 if (NumberTiles.get(row, column)) {
-                    if (holes) {
-                        changed = NumberTiles.move(row, column, row, column + holes) || changed;
+                    if (holes && NumberTiles.move(row, column, row, column + holes)) {
+                        changed = true;
                     }
                 } else {
                     ++holes;
                 }
-            }
-        }
+            });
+        });
         if (combine) {
             // Combine tiles with the same value
-            for (let row = 0; row < 4; ++row) {
-                for (let column = 3; column >= 0; --column) {
-                    if (column + 1 < 4) {
-                        if (NumberTiles.combine(row, column, row, column + 1)) {
-                            ++column; // Don't combine the just combined tile with the next one
-                            changed = true;
-                        }
+            forEach((row) => {
+                forEach((column, skipNext) => {
+                    if (NumberTiles.combine(row, column, row, column + 1)) {
+                        skipNext(1);
+                        changed = true;
                     }
-                }
-            }
+                });
+            });
             if (changed) {
                 move(direction, false);
             }
