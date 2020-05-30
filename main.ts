@@ -214,8 +214,8 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 const backgroundColor = 0;
 const gridColor = 1;
 const gridBackgroundColor = 2;
-const tileBackgroundColor = 3;
-const fontDarkColor = 4;
+const fontDarkColor = 3;
+const tileBackgroundColor = 4;
 const white = 5;
 const tileBackground2Color = 6;
 let colorNumber = tileBackground2Color;
