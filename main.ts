@@ -208,12 +208,18 @@ function hasCombinableTiles() {
     return false;
 }
 
+let moveInProgress: boolean = false;
 function doMove(direction: Direction) {
-    const couldMove = move(direction, true);
-    if (couldMove) {
-        NumberTiles.createRandomTile();
-    } else if (isFull() && !hasCombinableTiles()) {
-        game.over(false);
+    // The move must be finished, before another move can start
+    if (!moveInProgress) {
+        moveInProgress = true;
+        const couldMove = move(direction, true);
+        if (couldMove) {
+            NumberTiles.createRandomTile();
+        } else if (isFull() && !hasCombinableTiles()) {
+            game.over(false);
+        }
+        moveInProgress = false;
     }
 }
 
