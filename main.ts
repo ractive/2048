@@ -214,10 +214,13 @@ function doMove(direction: Direction) {
     if (!moveInProgress) {
         moveInProgress = true;
         const couldMove = move(direction, true);
-        if (couldMove) {
+        if (isFull()) {
+            if (!hasCombinableTiles()) {
+                game.over(false);
+            }
+        }
+        else if (couldMove) {
             NumberTiles.createRandomTile();
-        } else if (isFull() && !hasCombinableTiles()) {
-            game.over(false);
         }
         moveInProgress = false;
     }
